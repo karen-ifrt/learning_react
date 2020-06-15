@@ -45,25 +45,58 @@ class Incrementer extends React.Component {
 
     constructor(props) {
         super(props)
-        this.state = { n: props.start }
-        this.timer = null
+        this.state = { n: props.start, timer: null }
+        this.toggle = this.toggle.bind(this)
+        this.reset = this.reset.bind(this)
     }
     
     componentDidMount() {
-        window.setInterval(this.plus.bind(this), 1000)
+        this.play()
     }
 
     componentWillUnmont() {
-        window.clearInterval(this.timer)
+        window.clearInterval(this.state.timer)
     }
 
     plus() {
         // Si plusieurs setState : mettre dans une fonction
-        this.setState((state, props) => ({n: state.n + props.step}))
+        this.setState((state, props) => ({ n: state.n + props.step }))
+    }
+
+    pause() {
+        window.clearInterval(this.state.timer)
+        this.setState({
+            timer: null
+        })
+    }
+
+    play() {
+        window.clearInterval(this.state.timer)
+        this.setState({
+            timer: window.setInterval(this.plus.bind(this), 1000)
+        })
+        
+    }
+
+    toggle() {
+        return this.state.timer ? this.pause() : this.play()
+    }
+
+    label() {
+        return this.state.timer ? 'Pause' : 'Lecture'
+    }
+
+    reset() {
+        this.pause()
+        this.play()
+        this.setState((state, props) => ({n: props.start}))
     }
     
     render() {
-        return <div>Vous êtes en ligne depuis {this.state.n} secondes</div>
+        return <div>Valeur : {this.state.n}
+            <button onClick={this.toggle}>{this.label()}</button>
+            <button onClick={this.reset}>Réinitialiser</button>
+        </div>
     }
 }
 
@@ -77,9 +110,7 @@ function Home() {
     return <div>
         <Welcome name="Karen" />
         <Welcome name="Romain" />
-        <Clock />
-        <Incrementer start={10} />
-        <Incrementer start={100} step={10} />
+        <Incrementer />
     </div>
 }
 
